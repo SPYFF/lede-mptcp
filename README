@@ -1,29 +1,12 @@
-This is the buildsystem for the LEDE Linux distribution.
+#LEDE MPTCP
 
-Please use "make menuconfig" to choose your preferred
-configuration for the toolchain and firmware.
+##About
+This is a fork of the [LEDE](https://github.com/lede-project/source) project aims to add proper [MPTCP](https://www.multipath-tcp.org/) support. In this version of LEDE the MPTCP kernel support is enabled by default, also with some other configuration tools to use your router as a transparent MPTCP proxy.
 
-You need to have installed gcc, binutils, bzip2, flex, python, perl, make,
-find, grep, diff, unzip, gawk, getopt, subversion, libz-dev and libc headers.
+##Goals of this project
+* None or minimal configuration to get multipath operation working.
+* Keep the source close to the original LEDE project. Only the required kernel [patches](https://www.multipath-tcp.org/patches/) and minimal set of tools for configuration.
+* In the near future MPTCP will upstream into the mainline kernel (and into the LEDE kernel as well), when this happens, this project wants to bring the proper tooling for the configuration.
 
-Run "./scripts/feeds update -a" to get all the latest package definitions
-defined in feeds.conf / feeds.conf.default respectively
-and "./scripts/feeds install -a" to install symlinks of all of them into
-package/feeds/.
-
-Use "make menuconfig" to configure your image.
-
-Simply running "make" will build your firmware.
-It will download all sources, build the cross-compile toolchain, 
-the kernel and all choosen applications.
-
-To build your own firmware you need to have access to a Linux, BSD or MacOSX system
-(case-sensitive filesystem required). Cygwin will not be supported because of
-the lack of case sensitiveness in the file system.
-
-
-Sunshine!
-	Your LEDE Community
-	http://www.lede-project.org
-
-
+##Building
+*TBD*
