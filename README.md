@@ -9,4 +9,4 @@ This is a fork of the [LEDE](https://github.com/lede-project/source) project aim
 * In the near future MPTCP will upstream into the mainline kernel (and into the LEDE kernel as well), when this happens, this project wants to bring the proper tooling for the configuration.
 
 ## Building
-*TBD*
+Just follow the regular [LEDE building process](https://lede-project.org/docs/guide-developer/quickstart-build-images). But before the last `make` command, type `make kernel_menuconfig` and enable the MPTCP support described [here](https://multipath-tcp.org/pmwiki.php/Users/DoItYourself).
