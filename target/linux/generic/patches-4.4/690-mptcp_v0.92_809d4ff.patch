@@ -249,10 +249,10 @@ index 625bdf9..5c17713 100644
  	union {
 diff --git a/include/net/mptcp.h b/include/net/mptcp.h
 new file mode 100644
-index 0000000..1147d1f
+index 0000000..b868c53
 --- /dev/null
 +++ b/include/net/mptcp.h
-@@ -0,0 +1,1493 @@
+@@ -0,0 +1,1496 @@
 +/*
 + *	MPTCP implementation
 + *
@@ -683,6 +683,9 @@ index 0000000..1147d1f
 +
 +
 +#define OPTION_MPTCP		(1 << 5)
++
++/* Max number of fastclose retransmissions */
++#define MPTCP_FASTCLOSE_RETRIES 3
 +
 +#ifdef CONFIG_MPTCP
 +
@@ -5842,7 +5845,7 @@ index 3fdcdc7..ee2b439 100644
  	if (tp->packets_out || !tcp_send_head(sk)) {
  		/* Cancel probe timer, if it is not required. */
 diff --git a/net/ipv4/tcp_timer.c b/net/ipv4/tcp_timer.c
-index ebb34d0..cd6ceb7 100644
+index ebb34d0..d34a39a 100644
 --- a/net/ipv4/tcp_timer.c
 +++ b/net/ipv4/tcp_timer.c
 @@ -20,6 +20,7 @@
@@ -5984,7 +5987,7 @@ index ebb34d0..cd6ceb7 100644
  		/* Try again later. */
  		inet_csk_reset_keepalive_timer (sk, HZ/20);
  		goto out;
-@@ -593,16 +610,38 @@ static void tcp_keepalive_timer (unsigned long data)
+@@ -593,16 +610,40 @@ static void tcp_keepalive_timer (unsigned long data)
  		goto out;
  	}
  
@@ -5999,8 +6002,10 @@ index ebb34d0..cd6ceb7 100644
 +		if (!tp->retrans_stamp)
 +			tp->retrans_stamp = tcp_time_stamp ? : 1;
 +
-+		if (tcp_write_timeout(sk))
++		if (icsk->icsk_retransmits >= MPTCP_FASTCLOSE_RETRIES) {
++			tcp_write_err(sk);
 +			goto out;
++		}
 +
 +		tcp_send_ack(sk);
 +		icsk->icsk_retransmits++;
@@ -6025,7 +6030,7 @@ index ebb34d0..cd6ceb7 100644
  		goto death;
  	}
  
-@@ -626,11 +665,11 @@ static void tcp_keepalive_timer (unsigned long data)
+@@ -626,11 +667,11 @@ static void tcp_keepalive_timer (unsigned long data)
  		    icsk->icsk_probes_out > 0) ||
  		    (icsk->icsk_user_timeout == 0 &&
  		    icsk->icsk_probes_out >= keepalive_probes(tp))) {
@@ -6039,7 +6044,7 @@ index ebb34d0..cd6ceb7 100644
  			icsk->icsk_probes_out++;
  			elapsed = keepalive_intvl_when(tp);
  		} else {
-@@ -654,7 +693,7 @@ death:
+@@ -654,7 +695,7 @@ death:
  	tcp_done(sk);
  
  out:
@@ -17135,10 +17140,10 @@ index 0000000..73298b2
 +MODULE_VERSION("0.1");
 diff --git a/net/mptcp/mptcp_output.c b/net/mptcp/mptcp_output.c
 new file mode 100644
-index 0000000..b8560e1
+index 0000000..3861c4af
 --- /dev/null
 +++ b/net/mptcp/mptcp_output.c
-@@ -0,0 +1,1801 @@
+@@ -0,0 +1,1805 @@
 +/*
 + *	MPTCP implementation - Sending side
 + *
@@ -18455,6 +18460,10 @@ index 0000000..b8560e1
 +	inet_csk_reset_keepalive_timer(sk, inet_csk(sk)->icsk_rto);
 +
 +	meta_tp->send_mp_fclose = 1;
++	inet_csk(sk)->icsk_retransmits = 0;
++
++	/* Prevent exp backoff reverting on ICMP dest unreachable */
++	inet_csk(sk)->icsk_backoff = 0;
 +
 +	MPTCP_INC_STATS(sock_net(meta_sk), MPTCP_MIB_FASTCLOSETX);
 +}
