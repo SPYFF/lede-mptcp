@@ -10,3 +10,5 @@ This is a fork of the [LEDE](https://github.com/lede-project/source) project aim
 
 ## Building
 Just follow the regular [LEDE building process](https://lede-project.org/docs/guide-developer/quickstart-build-images). But before the last `make` command, type `make kernel_menuconfig` and enable the MPTCP support described [here](https://multipath-tcp.org/pmwiki.php/Users/DoItYourself).
+
+Successfully boot on Netgear R7000, Netgear R7800 routers and on a x86_64 VBox virtual machine.
