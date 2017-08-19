@@ -2503,10 +2503,10 @@ index a5d0409..bbdea9f 100644
  obj-$(CONFIG_NET_KEY)		+= key/
  obj-$(CONFIG_BRIDGE)		+= bridge/
 diff --git a/net/core/dev.c b/net/core/dev.c
-index dc5d3d5..32eb5b3 100644
+index 24d2430..a4c9d24 100644
 --- a/net/core/dev.c
 +++ b/net/core/dev.c
-@@ -5968,7 +5968,7 @@ int __dev_change_flags(struct net_device *dev, unsigned int flags)
+@@ -5975,7 +5975,7 @@ int __dev_change_flags(struct net_device *dev, unsigned int flags)
  
  	dev->flags = (flags & (IFF_DEBUG | IFF_NOTRAILERS | IFF_NOARP |
  			       IFF_DYNAMIC | IFF_MULTICAST | IFF_PORTSEL |
@@ -2860,7 +2860,7 @@ index f300d1c..a02aabe 100644
  		break;
  	case IP_TTL:
 diff --git a/net/ipv4/syncookies.c b/net/ipv4/syncookies.c
-index 4cbe9f0..194c2fa 100644
+index 731b914..90f5f30 100644
 --- a/net/ipv4/syncookies.c
 +++ b/net/ipv4/syncookies.c
 @@ -16,6 +16,8 @@
@@ -2940,7 +2940,7 @@ index 4cbe9f0..194c2fa 100644
  	if (!req)
  		goto out;
  
-@@ -347,12 +375,17 @@ struct sock *cookie_v4_check(struct sock *sk, struct sk_buff *skb)
+@@ -348,12 +376,17 @@ struct sock *cookie_v4_check(struct sock *sk, struct sk_buff *skb)
  	ireq->sack_ok		= tcp_opt.sack_ok;
  	ireq->wscale_ok		= tcp_opt.wscale_ok;
  	ireq->tstamp_ok		= tcp_opt.saw_tstamp;
@@ -2958,7 +2958,7 @@ index 4cbe9f0..194c2fa 100644
  	/* We throwed the options of the initial SYN away, so we hope
  	 * the ACK carries the same options again (see RFC1122 4.2.3.8)
  	 */
-@@ -386,10 +419,10 @@ struct sock *cookie_v4_check(struct sock *sk, struct sk_buff *skb)
+@@ -387,10 +420,10 @@ struct sock *cookie_v4_check(struct sock *sk, struct sk_buff *skb)
  	/* Try to redo what tcp_v4_send_synack did. */
  	req->rsk_window_clamp = tp->window_clamp ? :dst_metric(&rt->dst, RTAX_WINDOW);
  
@@ -3601,7 +3601,7 @@ index fca6182..fde7389 100644
  	 * and queues the child into listener accept queue.
  	 */
 diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
-index 8f13b2e..e6ee8ae 100644
+index f0dabd1..3f451e7 100644
 --- a/net/ipv4/tcp_input.c
 +++ b/net/ipv4/tcp_input.c
 @@ -75,6 +75,9 @@
@@ -5261,7 +5261,7 @@ index 4c1c94f..307326a 100644
  	return ret;
  }
 diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index 3fdcdc7..ee2b439 100644
+index 850d1b5..02bf0d7 100644
 --- a/net/ipv4/tcp_output.c
 +++ b/net/ipv4/tcp_output.c
 @@ -36,6 +36,12 @@
@@ -5826,7 +5826,7 @@ index 3fdcdc7..ee2b439 100644
  }
  
  static void tcp_connect_queue_skb(struct sock *sk, struct sk_buff *skb)
-@@ -3404,7 +3478,7 @@ EXPORT_SYMBOL_GPL(tcp_send_ack);
+@@ -3407,7 +3481,7 @@ EXPORT_SYMBOL_GPL(tcp_send_ack);
   * one is with SEG.SEQ=SND.UNA to deliver urgent pointer, another is
   * out-of-date with SND.UNA-1 to probe window.
   */
@@ -5835,7 +5835,7 @@ index 3fdcdc7..ee2b439 100644
  {
  	struct tcp_sock *tp = tcp_sk(sk);
  	struct sk_buff *skb;
-@@ -3487,7 +3561,7 @@ void tcp_send_probe0(struct sock *sk)
+@@ -3490,7 +3564,7 @@ void tcp_send_probe0(struct sock *sk)
  	unsigned long probe_max;
  	int err;
  
@@ -5845,7 +5845,7 @@ index 3fdcdc7..ee2b439 100644
  	if (tp->packets_out || !tcp_send_head(sk)) {
  		/* Cancel probe timer, if it is not required. */
 diff --git a/net/ipv4/tcp_timer.c b/net/ipv4/tcp_timer.c
-index ebb34d0..d34a39a 100644
+index 1ec12a4..466a8e3 100644
 --- a/net/ipv4/tcp_timer.c
 +++ b/net/ipv4/tcp_timer.c
 @@ -20,6 +20,7 @@
@@ -6030,7 +6030,7 @@ index ebb34d0..d34a39a 100644
  		goto death;
  	}
  
-@@ -626,11 +667,11 @@ static void tcp_keepalive_timer (unsigned long data)
+@@ -627,11 +668,11 @@ static void tcp_keepalive_timer (unsigned long data)
  		    icsk->icsk_probes_out > 0) ||
  		    (icsk->icsk_user_timeout == 0 &&
  		    icsk->icsk_probes_out >= keepalive_probes(tp))) {
@@ -6044,7 +6044,7 @@ index ebb34d0..d34a39a 100644
  			icsk->icsk_probes_out++;
  			elapsed = keepalive_intvl_when(tp);
  		} else {
-@@ -654,7 +695,7 @@ death:
+@@ -655,7 +696,7 @@ death:
  	tcp_done(sk);
  
  out:
@@ -6121,7 +6121,7 @@ index 4449ad1..c23941b 100644
  			 * ... and add it to the refcnt debug socks count
  			 * in the new family. -acme
 diff --git a/net/ipv6/syncookies.c b/net/ipv6/syncookies.c
-index eaf7ac4..bfa639c 100644
+index aee8728..efc968e 100644
 --- a/net/ipv6/syncookies.c
 +++ b/net/ipv6/syncookies.c
 @@ -19,6 +19,8 @@
@@ -6188,7 +6188,7 @@ index eaf7ac4..bfa639c 100644
  	if (security_inet_conn_request(sk, skb, req))
  		goto out_free;
  
-@@ -236,10 +254,10 @@ struct sock *cookie_v6_check(struct sock *sk, struct sk_buff *skb)
+@@ -237,10 +255,10 @@ struct sock *cookie_v6_check(struct sock *sk, struct sk_buff *skb)
  	}
  
  	req->rsk_window_clamp = tp->window_clamp ? :dst_metric(dst, RTAX_WINDOW);
