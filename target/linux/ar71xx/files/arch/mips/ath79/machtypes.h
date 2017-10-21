@@ -19,6 +19,7 @@ enum ath79_mach_type {
 	ATH79_MACH_GENERIC = 0,
 	ATH79_MACH_A40,				/* OpenMesh A40 */
 	ATH79_MACH_A60,				/* OpenMesh A60 */
+	ATH79_MACH_WI2A_AC200I,			/* Nokia WI2A-AC200i */
 	ATH79_MACH_ALFA_AP120C,			/* ALFA Network AP120C board */
 	ATH79_MACH_ALFA_AP96,			/* ALFA Network AP96 board */
 	ATH79_MACH_ALFA_NX,			/* ALFA Network N2/N5 board */
@@ -30,6 +31,7 @@ enum ath79_mach_type {
 	ATH79_MACH_ANTROUTER_R1,		/* Antrouter R1 */
 	ATH79_MACH_AP121,			/* Atheros AP121 reference board */
 	ATH79_MACH_AP121_MINI,			/* Atheros AP121-MINI reference board */
+	ATH79_MACH_AP121F,			/* ALFA Network AP121F */
 	ATH79_MACH_AP132,			/* Atheros AP132 reference board */
 	ATH79_MACH_AP135_020,			/* Atheros AP135-020 reference board */
 	ATH79_MACH_AP136_010,			/* Atheros AP136-010 reference board */
@@ -47,6 +49,7 @@ enum ath79_mach_type {
 	ATH79_MACH_ARCHER_C60_V1,		/* TP-LINK Archer C60 V1 board */
 	ATH79_MACH_ARCHER_C7,			/* TP-LINK Archer C7 board */
 	ATH79_MACH_ARCHER_C7_V2,		/* TP-LINK Archer C7 V2 board */
+	ATH79_MACH_ARCHER_C7_V4,		/* TP-LINK Archer C7 V4 board */
 	ATH79_MACH_ARDUINO_YUN,			/* Yun */
 	ATH79_MACH_AW_NR580,			/* AzureWave AW-NR580 */
 	ATH79_MACH_BHR_4GRV2,			/* Buffalo BHR-4GRV2 */
@@ -59,6 +62,7 @@ enum ath79_mach_type {
 	ATH79_MACH_CARAMBOLA2,			/* 8devices Carambola2 */
 	ATH79_MACH_CF_E316N_V2,			/* COMFAST CF-E316N v2 */
 	ATH79_MACH_CF_E320N_V2,			/* COMFAST CF-E320N v2 */
+	ATH79_MACH_CF_E355AC,			/* COMFAST CF-E355AC */
 	ATH79_MACH_CF_E380AC_V1,		/* COMFAST CF-E380AC v1 */
 	ATH79_MACH_CF_E380AC_V2,		/* COMFAST CF-E380AC v2 */
 	ATH79_MACH_CF_E520N,			/* COMFAST CF-E520N */
@@ -111,6 +115,7 @@ enum ath79_mach_type {
 	ATH79_MACH_GL_DOMINO,			/* Domino */
 	ATH79_MACH_GL_INET,			/* GL-CONNECT GL-INET */
 	ATH79_MACH_GL_MIFI,			/* GL-MIFI support */
+	ATH79_MACH_GL_USB150,			/* GL.iNet GL-USB150 */
 	ATH79_MACH_GS_MINIBOX_V1,		/* Gainstrong MiniBox V1.0 */
 	ATH79_MACH_GS_OOLITE,			/* GS OOLITE V1.0 */
 	ATH79_MACH_HIVEAP_121,			/* Aerohive HiveAP-121*/

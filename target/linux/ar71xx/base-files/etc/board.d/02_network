@@ -5,7 +5,6 @@
 
 . /lib/functions/system.sh
 . /lib/functions/uci-defaults.sh
-. /lib/ar71xx.sh
 
 ar71xx_setup_interfaces()
 {
@@ -64,6 +63,7 @@ ar71xx_setup_interfaces()
 	antminer-s1|\
 	antminer-s3|\
 	antrouter-r1|\
+	ap121f|\
 	aw-nr580|\
 	bullet-m|\
 	c-55|\
@@ -75,6 +75,7 @@ ar71xx_setup_interfaces()
 	eap7660d|\
 	el-mini|\
 	fritz300e|\
+	gl-usb150|\
 	hiveap-121|\
 	loco-m-xw|\
 	mr12|\
@@ -127,6 +128,7 @@ ar71xx_setup_interfaces()
 	tl-wr902ac-v1|\
 	tube2h|\
 	unifiac-lite|\
+	wi2a-ac200i|\
 	wndap360|\
 	wp543)
 		ucidef_set_interface_lan "eth0"
@@ -147,8 +149,6 @@ ar71xx_setup_interfaces()
 	om2p-hsv4|\
 	pb42|\
 	pb44|\
-	rb-750-r2|\
-	rb-750up-r2|\
 	rb-951ui-2hnd|\
 	rb-951ui-2nd|\
 	rb-952ui-5ac2nd|\
@@ -159,6 +159,13 @@ ar71xx_setup_interfaces()
 	wpe72|\
 	wrtnode2q)
 		ucidef_set_interfaces_lan_wan "eth1" "eth0"
+		;;
+	rb-750-r2|\
+	rb-750p-pbr2|\
+	rb-750up-r2)
+		ucidef_set_interfaces_lan_wan "eth1.1" "eth0"
+		ucidef_add_switch "switch0" \
+			"0@eth1" "1:lan:4" "2:lan:3" "3:lan:2" "4:lan:1"
 		;;
 	all0258n|\
 	all0315n|\
@@ -421,6 +428,7 @@ ar71xx_setup_interfaces()
 		ucidef_add_switch "switch0" \
 			"0@eth1" "1:lan:4" "2:lan:1" "3:lan:2" "4:lan:3"
 		;;
+	archer-c7-v4|\
 	tl-wdr4300|\
 	tl-wr1041n-v2)
 		ucidef_add_switch "switch0" \
@@ -526,7 +534,8 @@ ar71xx_setup_macs()
 		lan_mac=$(fritz_tffs -n maca -i $(find_mtd_part "tffs (1)"))
 		;;
 	tl-wr1043nd-v4)
-		wan_mac=$(mtd_get_mac_binary config 0x1017c)
+		lan_mac=$(mtd_get_mac_binary product-info 8)
+		wan_mac=$(macaddr_add "$lan_mac" 1)
 		;;
 	esr900)
 		wan_mac=$(mtd_get_mac_ascii u-boot-env "wanaddr")
@@ -535,7 +544,8 @@ ar71xx_setup_macs()
 	mynet-n750)
 		wan_mac=$(mtd_get_mac_ascii devdata "wanmac")
 		;;
-	wpj344)
+	wpj344|\
+	wpj558)
 		wan_mac=$(mtd_get_mac_binary u-boot 0x2e018)
 		;;
 	esac
@@ -545,7 +555,7 @@ ar71xx_setup_macs()
 }
 
 board_config_update
-board=$(ar71xx_board_name)
+board=$(board_name)
 ar71xx_setup_interfaces $board
 ar71xx_setup_macs $board
 board_config_flush

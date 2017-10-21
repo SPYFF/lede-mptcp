@@ -114,6 +114,11 @@ define Build/install-dtb
 	)
 endef
 
+define Build/install-zImage
+    $(CP) $(KDIR)/zImage \
+      $(BIN_DIR)/$(IMG_PREFIX)-$(PROFILE_SANITIZED)-zImage
+endef
+
 define Build/fit
 	$(TOPDIR)/scripts/mkits.sh \
 		-D $(DEVICE_NAME) -o $@.its -k $@ \
@@ -233,16 +238,31 @@ define Build/sysupgrade-tar
 		$@
 endef
 
+define Build/tplink-v1-header
+	$(STAGING_DIR_HOST)/bin/mktplinkfw \
+		-c -H $(TPLINK_HWID) -W $(TPLINK_HWREV) -L $(KERNEL_LOADADDR) \
+		-E $(if $(KERNEL_ENTRY),$(KERNEL_ENTRY),$(KERNEL_LOADADDR)) \
+		-m $(TPLINK_HEADER_VERSION) -N "$(VERSION_DIST)" -V $(REVISION) \
+		-k $@ -o $@.new $(1)
+	@mv $@.new $@
+endef
+
 define Build/tplink-v2-header
 	$(STAGING_DIR_HOST)/bin/mktplinkfw2 \
-		-c -V "ver. 2.0" -B $(TPLINK_BOARD_ID) $(1) -k $@ -o $@.new
+		-c -H $(TPLINK_HWID) -W $(TPLINK_HWREV) -L $(KERNEL_LOADADDR) \
+		-E $(if $(KERNEL_ENTRY),$(KERNEL_ENTRY),$(KERNEL_LOADADDR))  \
+		-w $(TPLINK_HWREVADD) -F "$(TPLINK_FLASHLAYOUT)" \
+		-T $(TPLINK_HVERSION) -V "ver. 2.0" \
+		-k $@ -o $@.new $(1)
 	@mv $@.new $@
 endef
 
 define Build/tplink-v2-image
 	$(STAGING_DIR_HOST)/bin/mktplinkfw2 \
-		-a 0x4 -j -V "ver. 2.0" -B $(TPLINK_BOARD_ID) $(1) \
-		-k $(IMAGE_KERNEL) -r $(IMAGE_ROOTFS) -o $@.new
+		-H $(TPLINK_HWID) -W $(TPLINK_HWREV) \
+		-w $(TPLINK_HWREVADD) -F "$(TPLINK_FLASHLAYOUT)" \
+		-T $(TPLINK_HVERSION) -V "ver. 2.0" -a 0x4 -j \
+		-k $(IMAGE_KERNEL) -r $(IMAGE_ROOTFS) -o $@.new $(1)
 	cat $@.new >> $@
 	rm -rf $@.new
 endef

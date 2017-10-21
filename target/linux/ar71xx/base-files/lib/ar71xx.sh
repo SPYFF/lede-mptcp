@@ -416,6 +416,9 @@ ar71xx_board_detect() {
 	*"AP121-MINI")
 		name="ap121-mini"
 		;;
+	*"AP121F")
+		name="ap121f"
+		;;
 	*"AP132 reference board")
 		name="ap132"
 		;;
@@ -448,6 +451,9 @@ ar71xx_board_detect() {
 		;;
 	*"Archer C5")
 		name="archer-c5"
+		;;
+	*"Archer C7 v4")
+		name="archer-c7-v4"
 		;;
 	*"Archer C58 v1")
 		name="archer-c58-v1"
@@ -503,6 +509,9 @@ ar71xx_board_detect() {
 		;;
 	*"CF-E320N v2")
 		name="cf-e320n-v2"
+		;;
+	*"CF-E355AC")
+		name="cf-e355ac"
 		;;
 	*"CF-E380AC v1")
 		name="cf-e380ac-v1"
@@ -668,6 +677,9 @@ ar71xx_board_detect() {
 		;;
 	*"GL-MIFI")
 		name="gl-mifi"
+		;;
+	*"GL-USB150")
+		name="gl-usb150"
 		;;
 	*"HiveAP-121")
 		name="hiveap-121"
@@ -901,6 +913,9 @@ ar71xx_board_detect() {
 		;;
 	*"RouterBOARD 750GL")
 		name="rb-750gl"
+		;;
+	*"RouterBOARD 750P r2")
+		name="rb-750p-pbr2"
 		;;
 	*"RouterBOARD 750UP r2")
 		name="rb-750up-r2"
@@ -1219,6 +1234,9 @@ ar71xx_board_detect() {
 	"WeIO"*)
 		name="weio"
 		;;
+	*"WI2A-AC200i")
+		name="wi2a-ac200i"
+		;;
 	*"WHR-G301N")
 		name="whr-g301n"
 		;;
@@ -1341,13 +1359,4 @@ ar71xx_board_detect() {
 
 	echo "$AR71XX_BOARD_NAME" > /tmp/sysinfo/board_name
 	echo "$AR71XX_MODEL" > /tmp/sysinfo/model
-}
-
-ar71xx_board_name() {
-	local name
-
-	[ -f /tmp/sysinfo/board_name ] && name=$(cat /tmp/sysinfo/board_name)
-	[ -z "$name" ] && name="unknown"
-
-	echo "$name"
 }

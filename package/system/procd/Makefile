@@ -8,13 +8,13 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=procd
-PKG_RELEASE:=3
+PKG_RELEASE:=1
 
 PKG_SOURCE_PROTO:=git
 PKG_SOURCE_URL=$(LEDE_GIT)/project/procd.git
-PKG_SOURCE_DATE:=2017-06-22
-PKG_SOURCE_VERSION:=e5e99c463e0ef3e4ad7ba8cea4125183073fabb1
-PKG_MIRROR_HASH:=4f5ed256aabc6e66411419c339bcfb86e37e8951d17470640b053f393c1dab49
+PKG_SOURCE_DATE:=2017-09-28
+PKG_SOURCE_VERSION:=ee582d16c7ebbfbcc5e3c4f8970f5e376c406f5f
+PKG_MIRROR_HASH:=c47459524647763150bb75cf030dca25786c27f3fd16fd88627f2a998ffa615e
 CMAKE_INSTALL:=1
 
 PKG_LICENSE:=GPL-2.0
@@ -110,6 +110,7 @@ define Package/procd-seccomp/install
 	$(INSTALL_DIR) $(1)/sbin $(1)/lib
 	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/libpreload-seccomp.so $(1)/lib
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/sbin/utrace $(1)/sbin/
+	$(LN) utrace $(1)/sbin/seccomp-trace
 	$(INSTALL_DATA) $(PKG_INSTALL_DIR)/usr/lib/libpreload-trace.so $(1)/lib
 endef
 

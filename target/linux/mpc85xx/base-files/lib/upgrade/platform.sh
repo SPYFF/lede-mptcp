@@ -2,10 +2,11 @@
 # Copyright (C) 2011 OpenWrt.org
 #
 
-. /lib/mpc85xx.sh
-
 PART_NAME=firmware
-RAMFS_COPY_DATA=/lib/mpc85xx.sh
+
+get_magic_long_at() {
+	(get_image "$1" | dd bs=4 count=1 skip="$2" | hexdump -v -n 4 -e '1/1 "%02x"') 2>/dev/null
+}
 
 tplink_get_hwid() {
 	local part
@@ -25,12 +26,35 @@ tplink_get_image_boot_size() {
 }
 
 platform_check_image() {
-	local board=$(mpc85xx_board_name)
+	local board=$(board_name)
 	local magic="$(get_magic_long "$1")"
 
 	[ "$#" -gt 1 ] && return 1
 
 	case $board in
+	hiveap-330)
+		local init_magic=$(get_magic_long_at "$1" "65536")
+		local root_magic=$(get_magic_long_at "$1" "131072")
+		local kernel_magic=$(get_magic_long_at "$1" "10551296")
+
+		[ "$magic" != "d00dfeed" ] && {
+			echo "Invalid dtb image type."
+			return 1
+		}
+		[ "$init_magic" != "27051956" ] && {
+			echo "Invalid initramfs image type."
+			return 1
+		}
+		[ "$root_magic" != "68737173" ] && {
+			echo "Invalid rootfs image type."
+			return 1
+		}
+		[ "$kernel_magic" != "27051956" ] && {
+			echo "Invalid kernel image type."
+			return 1
+		}
+		return 0
+		;;
 	tl-wdr4900-v1)
 		[ "$magic" != "01000000" ] && {
 			echo "Invalid image type."
@@ -65,7 +89,7 @@ platform_check_image() {
 }
 
 platform_do_upgrade() {
-	local board=$(mpc85xx_board_name)
+	local board=$(board_name)
 
 	case "$board" in
 	*)

@@ -1,11 +1,11 @@
 #!/bin/sh
 # Copyright (C) 2009-2013 OpenWrt.org
 
+. /lib/functions.sh
 . /lib/functions/leds.sh
-. /lib/ar71xx.sh
 
 get_status_led() {
-	local board=$(ar71xx_board_name)
+	local board=$(board_name)
 
 	case $board in
 	a40)
@@ -29,6 +29,9 @@ get_status_led() {
 	tl-wr802n-v2|\
 	xd3200)
 		status_led="$board:green:system"
+		;;
+	ap121f)
+		status_led="$board:green:vpn"
 		;;
 	ap132|\
 	ap531b0|\
@@ -55,7 +58,9 @@ get_status_led() {
 	archer-c58-v1|\
 	archer-c59-v1|\
 	archer-c60-v1|\
+	archer-c7-v4|\
 	fritz300e|\
+	gl-usb150|\
 	mr12|\
 	mr16|\
 	nbg6616|\
@@ -175,7 +180,7 @@ get_status_led() {
 		status_led="$board:blue:status"
 		;;
 	eap120)
-		status_led="$(ar71xx_board_name):green:system"
+		status_led="$board:green:system"
 		;;
 	eap300v2)
 		status_led="engenius:blue:power"
@@ -312,12 +317,11 @@ get_status_led() {
 		status_led="rb750:green:act"
 		;;
 	rb-750-r2|\
+	rb-750p-pbr2|\
 	rb-750up-r2|\
 	rb-911g-2hpnd|\
 	rb-911g-5hpacd|\
 	rb-911g-5hpnd|\
-	rb-912uag-2hpnd|\
-	rb-912uag-5hpnd|\
 	rb-941-2nd|\
 	rb-951ui-2nd|\
 	rb-952ui-5ac2nd|\
@@ -329,6 +333,8 @@ get_status_led() {
 	rb-951ui-2hnd)
 		status_led="rb:green:act"
 		;;
+	rb-912uag-2hpnd|\
+	rb-912uag-5hpnd|\
 	rb-sxt2n|\
 	rb-sxt5n)
 		status_led="rb:green:power"
@@ -454,6 +460,9 @@ get_status_led() {
 	airgatewaypro)
 		status_led="ubnt:white:status"
 		;;
+	wi2a-ac200i)
+		status_led="nokia:green:ctrl"
+		;;
 	whr-g301n|\
 	whr-hp-g300n|\
 	whr-hp-gn|\
@@ -516,13 +525,16 @@ set_state() {
 		;;
 	done)
 		status_led_on
-		case $(ar71xx_board_name) in
+		case $(board_name) in
 		gl-ar300m)
 			fw_printenv lc >/dev/null 2>&1 && fw_setenv "bootcount" 0
 			;;
 		qihoo-c301)
 			local n=$(fw_printenv activeregion | cut -d = -f 2)
 			fw_setenv "image${n}trynum" 0
+			;;
+		wi2a-ac200i)
+			fw_setenv PKRstCnt 0
 			;;
 		esac
 		;;

@@ -184,7 +184,7 @@ alfa_check_image() {
 }
 
 platform_nand_board_name() {
-	local board=$(ar71xx_board_name)
+	local board=$(board_name)
 
 	case "$board" in
 	rb*) echo "routerboard";;
@@ -193,7 +193,7 @@ platform_nand_board_name() {
 }
 
 platform_check_image() {
-	local board=$(ar71xx_board_name)
+	local board=$(board_name)
 	local magic="$(get_magic_word "$1")"
 	local magic_long="$(get_magic_long "$1")"
 
@@ -203,6 +203,7 @@ platform_check_image() {
 	airgatewaypro|\
 	airgateway|\
 	airrouter|\
+	ap121f|\
 	ap132|\
 	ap531b0|\
 	ap90q|\
@@ -210,11 +211,13 @@ platform_check_image() {
 	archer-c58-v1|\
 	archer-c59-v1|\
 	archer-c60-v1|\
+	archer-c7-v4|\
 	bullet-m|\
 	c-55|\
 	carambola2|\
 	cf-e316n-v2|\
 	cf-e320n-v2|\
+	cf-e355ac|\
 	cf-e380ac-v1|\
 	cf-e380ac-v2|\
 	cf-e520n|\
@@ -249,6 +252,7 @@ platform_check_image() {
 	gl-ar300|\
 	gl-domino|\
 	gl-mifi|\
+	gl-usb150|\
 	hiwifi-hc6361|\
 	hornet-ub-x2|\
 	jwap230|\
@@ -531,6 +535,7 @@ platform_check_image() {
 	nbg6716|\
 	r6100|\
 	rambutan|\
+	wi2a-ac200i|\
 	wndr3700v4|\
 	wndr4300)
 		nand_do_platform_check $board $1
@@ -652,6 +657,7 @@ platform_check_image() {
 	# these boards use metadata images
 	fritz300e|\
 	rb-750-r2|\
+	rb-750p-pbr2|\
 	rb-750up-r2|\
 	rb-941-2nd|\
 	rb-951ui-2nd|\
@@ -668,7 +674,7 @@ platform_check_image() {
 }
 
 platform_pre_upgrade() {
-	local board=$(ar71xx_board_name)
+	local board=$(board_name)
 
 	case "$board" in
 	c-60|\
@@ -704,11 +710,13 @@ platform_pre_upgrade() {
 	rb-2011uias-2hnd|\
 	rb-sxt2n|\
 	rb-sxt5n|\
+	wi2a-ac200i|\
 	wndr3700v4|\
 	wndr4300)
 		nand_do_upgrade "$1"
 		;;
 	rb-750-r2|\
+	rb-750p-pbr2|\
 	rb-750up-r2|\
 	rb-941-2nd|\
 	rb-951ui-2nd|\
@@ -727,7 +735,7 @@ platform_pre_upgrade() {
 }
 
 platform_nand_pre_upgrade() {
-	local board=$(ar71xx_board_name)
+	local board=$(board_name)
 
 	case "$board" in
 	rb*)
@@ -738,11 +746,28 @@ platform_nand_pre_upgrade() {
 		mtd erase kernel
 		tar xf "$1" sysupgrade-routerboard/kernel -O | nandwrite -o "$fw_mtd" -
 		;;
+	wi2a-ac200i)
+		case "$(fw_printenv -n dualPartition)" in
+			imgA)
+				fw_setenv dualPartition imgB
+				fw_setenv ActImg NokiaImageB
+			;;
+			imgB)
+				fw_setenv dualPartition imgA
+				fw_setenv ActImg NokiaImageA
+			;;
+		esac
+		ubiblock -r /dev/ubiblock0_0 2>/dev/null >/dev/null
+		rm -f /dev/ubiblock0_0
+		ubidetach -d 0 2>/dev/null >/dev/null
+		CI_UBIPART=ubi_alt
+		CI_KERNPART=kernel_alt
+		;;
 	esac
 }
 
 platform_do_upgrade() {
-	local board=$(ar71xx_board_name)
+	local board=$(board_name)
 
 	case "$board" in
 	all0258n)

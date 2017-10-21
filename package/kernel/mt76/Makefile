@@ -8,9 +8,9 @@ PKG_LICENSE_FILES:=
 
 PKG_SOURCE_URL:=https://github.com/openwrt/mt76
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE_DATE:=2017-07-04
-PKG_SOURCE_VERSION:=e90a81a5523e567efb1fe33bac677cfac644101f
-PKG_MIRROR_HASH:=6c40885a4f29f6842b6426568ae7d4b6c3e91f4a510c475e8fecaec03ae5f2f2
+PKG_SOURCE_DATE:=2017-10-12
+PKG_SOURCE_VERSION:=37654d704772512065cd28b007342758c2a0f14a
+PKG_MIRROR_HASH:=487ca40ed4e1ffe015dabc76c0a84782602d84f5b08c9c86cc6c892cb499623b
 
 PKG_MAINTAINER:=Felix Fietkau <nbd@nbd.name>
 PKG_BUILD_PARALLEL:=1
@@ -96,7 +96,7 @@ endef
 
 define KernelPackage/mt7603/install
 	$(INSTALL_DIR) $(1)/lib/firmware
-	cp $(if $(CONFIG_TARGET_ramips_mt7628)$(CONFIG_TARGET_ramips_mt7688), \
+	cp $(if $(CONFIG_TARGET_ramips_mt76x8), \
 		$(PKG_BUILD_DIR)/firmware/mt7628_e1.bin \
 		$(PKG_BUILD_DIR)/firmware/mt7628_e2.bin \
 		,\

@@ -2,6 +2,8 @@
 # MT7621 Profiles
 #
 
+DEVICE_VARS += TPLINK_BOARD_ID TPLINK_HEADER_VERSION TPLINK_HWID TPLINK_HWREV
+
 define Build/ubnt-erx-factory-image
 	if [ -e $(KDIR)/tmp/$(KERNEL_INITRAMFS_IMAGE) -a "$$(stat -c%s $@)" -lt "$(KERNEL_SIZE)" ]; then \
 		echo '21001:6' > $(1).compat; \
@@ -73,6 +75,14 @@ define Device/firewrt
 endef
 TARGET_DEVICES += firewrt
 
+define Device/gb-pc1
+  DTS := GB-PC1
+  DEVICE_TITLE := GnuBee Personal Cloud One
+  DEVICE_PACKAGES := kmod-ata-core kmod-ata-ahci kmod-usb3 kmod-sdhci-mt7620
+  IMAGE_SIZE := $(ralink_default_fw_size_32M)
+endef
+TARGET_DEVICES += gb-pc1
+
 define Device/hc5962
   DTS := HC5962
   BLOCKSIZE := 128k
@@ -87,6 +97,33 @@ define Device/hc5962
   DEVICE_PACKAGES := kmod-mt7603 kmod-mt76x2 kmod-usb3 wpad-mini
 endef
 TARGET_DEVICES += hc5962
+
+define Device/k2p
+  DTS := K2P
+  IMAGE_SIZE := $(ralink_default_fw_size_16M)
+  DEVICE_TITLE := Phicomm K2P
+endef
+TARGET_DEVICES += k2p
+
+define Device/mir3g
+  DTS := MIR3G
+  BLOCKSIZE := 128k
+  PAGESIZE := 2048
+  KERNEL_SIZE := 4096k
+  KERNEL := $(KERNEL_DTB) | uImage lzma
+  IMAGE_SIZE := 32768k
+  UBINIZE_OPTS := -E 5
+  IMAGES := sysupgrade.tar kernel1.bin rootfs0.bin
+  IMAGE/kernel1.bin := append-kernel
+  IMAGE/rootfs0.bin := append-ubi | check-size $$$$(IMAGE_SIZE)
+  IMAGE/sysupgrade.tar := sysupgrade-tar | append-metadata
+  DEVICE_TITLE := Xiaomi Mi Router 3G
+  SUPPORTED_DEVICES += R3G
+  DEVICE_PACKAGES := \
+	kmod-mt7603 kmod-mt76x2 kmod-usb3 kmod-usb-ledtrig-usbport wpad-mini \
+	uboot-envtools
+endef
+TARGET_DEVICES += mir3g
 
 define Device/mt7621
   DTS := MT7621
@@ -140,6 +177,22 @@ define Device/rb750gr3
   DEVICE_PACKAGES := kmod-usb3 uboot-envtools
 endef
 TARGET_DEVICES += rb750gr3
+
+define Device/re350-v1
+  DTS := RE350
+  DEVICE_TITLE := TP-LINK RE350 v1
+  DEVICE_PACKAGES := kmod-mt7603 kmod-mt76x2 wpad-mini
+  TPLINK_BOARD_ID := RE350-V1
+  TPLINK_HWID := 0x0
+  TPLINK_HWREV := 0
+  TPLINK_HEADER_VERSION := 1
+  IMAGE_SIZE := 6016k
+  KERNEL := $(KERNEL_DTB) | tplink-v1-header -e
+  IMAGES := sysupgrade.bin factory.bin
+  IMAGE/sysupgrade.bin := append-rootfs | tplink-safeloader sysupgrade | append-metadata | check-size $$$$(IMAGE_SIZE)
+  IMAGE/factory.bin := append-rootfs | tplink-safeloader factory
+endef
+TARGET_DEVICES += re350-v1
 
 define Device/re6500
   DTS := RE6500
