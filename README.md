@@ -2,6 +2,11 @@
 
 [![Join the chat at https://gitter.im/SPYFF/lede-mptcp](https://badges.gitter.im/SPYFF/lede-mptcp.svg)](https://gitter.im/SPYFF/lede-mptcp?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+*This is the master branch.* Supported MPTCP versions:
+[](https://img.shields.io/badge/kernel%20version-4.4.93-brightgreen.svg)
+[](https://img.shields.io/badge/kernel%20version-4.9.57-blue.svg)
+
+
 ## About
 This is a fork of the [LEDE](https://github.com/lede-project/source) project aims to add proper [MPTCP](https://www.multipath-tcp.org/) support. In this version of LEDE the MPTCP kernel support is enabled by default, also with some other configuration tools to use your router as a transparent MPTCP proxy.
 
