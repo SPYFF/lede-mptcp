@@ -4,7 +4,7 @@
 
 This is the stable branch. Supported MPTCP versions:
 
-![kernel version](https://img.shields.io/badge/kernel%20version-4.4.93-brightgreen.svg)
+![kernel version](https://img.shields.io/badge/kernel%20version-4.4.110-brightgreen.svg)
 
 ## About
 This is a fork of the [LEDE](https://github.com/lede-project/source) project aims to add proper [MPTCP](https://www.multipath-tcp.org/) support. In this version of LEDE the MPTCP kernel support is enabled by default, also with some other configuration tools to use your router as a transparent MPTCP proxy.
