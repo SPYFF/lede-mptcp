@@ -56,7 +56,7 @@
 #define ARCHER_C7_GPIO_LED_USB1		7
 #define ARCHER_C7_GPIO_LED_USB2		8
 
-#define ARCHER_C7_74HC_GPIO_BASE	QCA956X_GPIO_COUNT
+#define ARCHER_C7_74HC_GPIO_BASE	32
 #define ARCHER_C7_GPIO_LED_WPS		(ARCHER_C7_74HC_GPIO_BASE + 0)
 #define ARCHER_C7_GPIO_LED_LAN1		(ARCHER_C7_74HC_GPIO_BASE + 1)
 #define ARCHER_C7_GPIO_LED_LAN2		(ARCHER_C7_74HC_GPIO_BASE + 2)
@@ -83,7 +83,7 @@ static struct spi_gpio_platform_data archer_c7_v4_spi_data = {
 	.num_chipselect	= 1,
 };
 
-static u8 archer_c7_v4_ssr_initdata __initdata = 0xff;
+static u8 archer_c7_v4_ssr_initdata = 0xff;
 
 static struct gen_74x164_chip_platform_data archer_c7_v4_ssr_data = {
 	.base = ARCHER_C7_74HC_GPIO_BASE,
