@@ -1921,7 +1921,7 @@ index 0000000..a6257fb
 +
 +#endif /* _MPTCP_V6_H */
 diff --git a/include/net/net_namespace.h b/include/net/net_namespace.h
-index 0490084..c73723b 100644
+index 10f99da..3c7523f 100644
 --- a/include/net/net_namespace.h
 +++ b/include/net/net_namespace.h
 @@ -18,6 +18,7 @@
@@ -2517,10 +2517,10 @@ index 14fede5..4d9fb91 100644
  obj-$(CONFIG_NET_KEY)		+= key/
  obj-$(CONFIG_BRIDGE)		+= bridge/
 diff --git a/net/core/dev.c b/net/core/dev.c
-index ffee085..c2fc18a 100644
+index 27357fc..09358b5 100644
 --- a/net/core/dev.c
 +++ b/net/core/dev.c
-@@ -6725,7 +6725,7 @@ int __dev_change_flags(struct net_device *dev, unsigned int flags)
+@@ -6714,7 +6714,7 @@ int __dev_change_flags(struct net_device *dev, unsigned int flags)
  
  	dev->flags = (flags & (IFF_DEBUG | IFF_NOTRAILERS | IFF_NOARP |
  			       IFF_DYNAMIC | IFF_MULTICAST | IFF_PORTSEL |
@@ -2552,7 +2552,7 @@ index 15fa5ba..8017be7 100644
  	__copy_skb_header(new, old);
  
 diff --git a/net/core/sock.c b/net/core/sock.c
-index beb1e29..44e8450 100644
+index 415f441..fc966bc 100644
 --- a/net/core/sock.c
 +++ b/net/core/sock.c
 @@ -139,6 +139,11 @@
@@ -2606,14 +2606,14 @@ index beb1e29..44e8450 100644
  	} else
  		sk = kmalloc(prot->obj_size, priority);
  
-@@ -1683,6 +1709,7 @@ struct sock *sk_clone_lock(const struct sock *sk, const gfp_t priority)
+@@ -1687,6 +1713,7 @@ struct sock *sk_clone_lock(const struct sock *sk, const gfp_t priority)
  		atomic_set(&newsk->sk_zckey, 0);
  
  		sock_reset_flag(newsk, SOCK_DONE);
 +		sock_reset_flag(newsk, SOCK_MPTCP);
- 		mem_cgroup_sk_alloc(newsk);
  		cgroup_sk_alloc(&newsk->sk_cgrp_data);
  
+ 		rcu_read_lock();
 diff --git a/net/ipv4/Kconfig b/net/ipv4/Kconfig
 index f48fe6f..93def62 100644
 --- a/net/ipv4/Kconfig
@@ -2754,7 +2754,7 @@ index b9d9a2b..884e505 100644
  	tcp_init();
  
 diff --git a/net/ipv4/inet_connection_sock.c b/net/ipv4/inet_connection_sock.c
-index 0cc08c5..fcc90f8 100644
+index b47a59c..4c1c757 100644
 --- a/net/ipv4/inet_connection_sock.c
 +++ b/net/ipv4/inet_connection_sock.c
 @@ -23,6 +23,7 @@
@@ -2765,7 +2765,7 @@ index 0cc08c5..fcc90f8 100644
  #include <net/tcp.h>
  #include <net/sock_reuseport.h>
  #include <net/addrconf.h>
-@@ -686,7 +687,10 @@ static void reqsk_timer_handler(unsigned long data)
+@@ -687,7 +688,10 @@ static void reqsk_timer_handler(unsigned long data)
  	int max_retries, thresh;
  	u8 defer_accept;
  
@@ -2777,7 +2777,7 @@ index 0cc08c5..fcc90f8 100644
  		goto drop;
  
  	max_retries = icsk->icsk_syn_retries ? : net->ipv4.sysctl_tcp_synack_retries;
-@@ -780,7 +784,9 @@ struct sock *inet_csk_clone_lock(const struct sock *sk,
+@@ -781,7 +785,9 @@ struct sock *inet_csk_clone_lock(const struct sock *sk,
  				 const struct request_sock *req,
  				 const gfp_t priority)
  {
@@ -2788,7 +2788,7 @@ index 0cc08c5..fcc90f8 100644
  
  	if (newsk) {
  		struct inet_connection_sock *newicsk = inet_csk(newsk);
-@@ -980,7 +986,12 @@ void inet_csk_listen_stop(struct sock *sk)
+@@ -981,7 +987,12 @@ void inet_csk_listen_stop(struct sock *sk)
  	 */
  	while ((req = reqsk_queue_remove(queue, sk)) != NULL) {
  		struct sock *child = req->sk;
@@ -2801,7 +2801,7 @@ index 0cc08c5..fcc90f8 100644
  		local_bh_disable();
  		bh_lock_sock(child);
  		WARN_ON(sock_owned_by_user(child));
-@@ -990,6 +1001,8 @@ void inet_csk_listen_stop(struct sock *sk)
+@@ -991,6 +1002,8 @@ void inet_csk_listen_stop(struct sock *sk)
  		reqsk_put(req);
  		bh_unlock_sock(child);
  		local_bh_enable();
@@ -2958,7 +2958,7 @@ index 77cf32a..230202c 100644
  	ireq->rcv_wscale  = rcv_wscale;
  	ireq->ecn_ok = cookie_ecn_ok(&tcp_opt, sock_net(sk), &rt->dst);
 diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
-index fe11128..f5c905d 100644
+index a0c72b0..7cce9b8 100644
 --- a/net/ipv4/tcp.c
 +++ b/net/ipv4/tcp.c
 @@ -273,6 +273,7 @@
@@ -3296,8 +3296,8 @@ index fe11128..f5c905d 100644
 +			tcp_sk(sk)->ops->send_active_reset(sk, GFP_ATOMIC);
  			__NET_INC_STATS(sock_net(sk),
  					LINUX_MIB_TCPABORTONMEMORY);
- 		} else if (!check_net(sock_net(sk))) {
-@@ -2298,15 +2387,6 @@ void tcp_close(struct sock *sk, long timeout)
+ 		}
+@@ -2295,15 +2384,6 @@ void tcp_close(struct sock *sk, long timeout)
  }
  EXPORT_SYMBOL(tcp_close);
  
@@ -3313,7 +3313,7 @@ index fe11128..f5c905d 100644
  int tcp_disconnect(struct sock *sk, int flags)
  {
  	struct inet_sock *inet = inet_sk(sk);
-@@ -2329,7 +2409,7 @@ int tcp_disconnect(struct sock *sk, int flags)
+@@ -2326,7 +2406,7 @@ int tcp_disconnect(struct sock *sk, int flags)
  		/* The last check adjusts for discrepancy of Linux wrt. RFC
  		 * states
  		 */
@@ -3322,7 +3322,7 @@ index fe11128..f5c905d 100644
  		sk->sk_err = ECONNRESET;
  	} else if (old_state == TCP_SYN_SENT)
  		sk->sk_err = ECONNRESET;
-@@ -2345,6 +2425,13 @@ int tcp_disconnect(struct sock *sk, int flags)
+@@ -2342,6 +2422,13 @@ int tcp_disconnect(struct sock *sk, int flags)
  	if (!(sk->sk_userlocks & SOCK_BINDADDR_LOCK))
  		inet_reset_saddr(sk);
  
@@ -3336,7 +3336,7 @@ index fe11128..f5c905d 100644
  	sk->sk_shutdown = 0;
  	sock_reset_flag(sk, SOCK_DONE);
  	tp->srtt_us = 0;
-@@ -2528,6 +2615,61 @@ static int do_tcp_setsockopt(struct sock *sk, int level,
+@@ -2519,6 +2606,61 @@ static int do_tcp_setsockopt(struct sock *sk, int level,
  		release_sock(sk);
  		return err;
  	}
@@ -3398,7 +3398,7 @@ index fe11128..f5c905d 100644
  	default:
  		/* fallthru */
  		break;
-@@ -2705,6 +2847,12 @@ static int do_tcp_setsockopt(struct sock *sk, int level,
+@@ -2696,6 +2838,12 @@ static int do_tcp_setsockopt(struct sock *sk, int level,
  		break;
  
  	case TCP_DEFER_ACCEPT:
@@ -3411,7 +3411,7 @@ index fe11128..f5c905d 100644
  		/* Translate value in seconds to number of retransmits */
  		icsk->icsk_accept_queue.rskq_defer_accept =
  			secs_to_retrans(val, TCP_TIMEOUT_INIT / HZ,
-@@ -2732,7 +2880,7 @@ static int do_tcp_setsockopt(struct sock *sk, int level,
+@@ -2723,7 +2871,7 @@ static int do_tcp_setsockopt(struct sock *sk, int level,
  			    (TCPF_ESTABLISHED | TCPF_CLOSE_WAIT) &&
  			    inet_csk_ack_scheduled(sk)) {
  				icsk->icsk_ack.pending |= ICSK_ACK_PUSHED;
@@ -3420,7 +3420,7 @@ index fe11128..f5c905d 100644
  				if (!(val & 1))
  					icsk->icsk_ack.pingpong = 1;
  			}
-@@ -2791,6 +2939,28 @@ static int do_tcp_setsockopt(struct sock *sk, int level,
+@@ -2782,6 +2930,28 @@ static int do_tcp_setsockopt(struct sock *sk, int level,
  		tp->notsent_lowat = val;
  		sk->sk_write_space(sk);
  		break;
@@ -3449,7 +3449,7 @@ index fe11128..f5c905d 100644
  	default:
  		err = -ENOPROTOOPT;
  		break;
-@@ -3218,6 +3388,75 @@ static int do_tcp_getsockopt(struct sock *sk, int level,
+@@ -3209,6 +3379,75 @@ static int do_tcp_getsockopt(struct sock *sk, int level,
  		}
  		return 0;
  	}
@@ -3525,7 +3525,7 @@ index fe11128..f5c905d 100644
  	default:
  		return -ENOPROTOOPT;
  	}
-@@ -3392,7 +3631,9 @@ void tcp_done(struct sock *sk)
+@@ -3383,7 +3622,9 @@ void tcp_done(struct sock *sk)
  	if (sk->sk_state == TCP_SYN_SENT || sk->sk_state == TCP_SYN_RECV)
  		TCP_INC_STATS(sock_net(sk), TCP_MIB_ATTEMPTFAILS);
  
@@ -3535,7 +3535,7 @@ index fe11128..f5c905d 100644
  	tcp_clear_xmit_timers(sk);
  	if (req)
  		reqsk_fastopen_remove(sk, req, false);
-@@ -3408,6 +3649,8 @@ EXPORT_SYMBOL_GPL(tcp_done);
+@@ -3399,6 +3640,8 @@ EXPORT_SYMBOL_GPL(tcp_done);
  
  int tcp_abort(struct sock *sk, int err)
  {
@@ -3544,7 +3544,7 @@ index fe11128..f5c905d 100644
  	if (!sk_fullsock(sk)) {
  		if (sk->sk_state == TCP_NEW_SYN_RECV) {
  			struct request_sock *req = inet_reqsk(sk);
-@@ -3422,7 +3665,7 @@ int tcp_abort(struct sock *sk, int err)
+@@ -3413,7 +3656,7 @@ int tcp_abort(struct sock *sk, int err)
  	}
  
  	/* Don't race with userspace socket closes such as tcp_close. */
@@ -3553,7 +3553,7 @@ index fe11128..f5c905d 100644
  
  	if (sk->sk_state == TCP_LISTEN) {
  		tcp_set_state(sk, TCP_CLOSE);
-@@ -3431,7 +3674,7 @@ int tcp_abort(struct sock *sk, int err)
+@@ -3422,7 +3665,7 @@ int tcp_abort(struct sock *sk, int err)
  
  	/* Don't race with BH socket closes such as inet_csk_listen_stop. */
  	local_bh_disable();
@@ -3562,7 +3562,7 @@ index fe11128..f5c905d 100644
  
  	if (!sock_flag(sk, SOCK_DEAD)) {
  		sk->sk_err = err;
-@@ -3443,9 +3686,9 @@ int tcp_abort(struct sock *sk, int err)
+@@ -3434,9 +3677,9 @@ int tcp_abort(struct sock *sk, int err)
  		tcp_done(sk);
  	}
  
@@ -5799,7 +5799,7 @@ index cd3d60b..f78b339 100644
  	if (tp->packets_out || !tcp_send_head(sk)) {
  		/* Cancel probe timer, if it is not required. */
 diff --git a/net/ipv4/tcp_timer.c b/net/ipv4/tcp_timer.c
-index 14ac7df..fe2c79d 100644
+index e9af187..fffecfd 100644
 --- a/net/ipv4/tcp_timer.c
 +++ b/net/ipv4/tcp_timer.c
 @@ -20,6 +20,7 @@
@@ -5819,7 +5819,7 @@ index 14ac7df..fe2c79d 100644
  {
  	sk->sk_err = sk->sk_err_soft ? : ETIMEDOUT;
  	sk->sk_error_report(sk);
-@@ -86,7 +87,7 @@ static int tcp_out_of_resources(struct sock *sk, bool do_reset)
+@@ -78,7 +79,7 @@ static int tcp_out_of_resources(struct sock *sk, bool do_reset)
  		    (!tp->snd_wnd && !tp->packets_out))
  			do_reset = true;
  		if (do_reset)
@@ -5828,7 +5828,7 @@ index 14ac7df..fe2c79d 100644
  		tcp_done(sk);
  		__NET_INC_STATS(sock_net(sk), LINUX_MIB_TCPABORTONMEMORY);
  		return 1;
-@@ -160,9 +161,9 @@ static void tcp_mtu_probing(struct inet_connection_sock *icsk, struct sock *sk)
+@@ -145,9 +146,9 @@ static void tcp_mtu_probing(struct inet_connection_sock *icsk, struct sock *sk)
   * after "boundary" unsuccessful, exponentially backed-off
   * retransmissions with an initial RTO of TCP_RTO_MIN.
   */
@@ -5841,7 +5841,7 @@ index 14ac7df..fe2c79d 100644
  {
  	const unsigned int rto_base = TCP_RTO_MIN;
  	unsigned int linear_backoff_thresh, start_ts;
-@@ -187,7 +188,7 @@ static bool retransmits_timed_out(struct sock *sk,
+@@ -172,7 +173,7 @@ static bool retransmits_timed_out(struct sock *sk,
  }
  
  /* A write timeout has occurred. Process the after effects. */
@@ -5850,7 +5850,7 @@ index 14ac7df..fe2c79d 100644
  {
  	struct inet_connection_sock *icsk = inet_csk(sk);
  	struct tcp_sock *tp = tcp_sk(sk);
-@@ -207,6 +208,17 @@ static int tcp_write_timeout(struct sock *sk)
+@@ -192,6 +193,17 @@ static int tcp_write_timeout(struct sock *sk)
  			sk_rethink_txhash(sk);
  		}
  		retry_until = icsk->icsk_syn_retries ? : net->ipv4.sysctl_tcp_syn_retries;
@@ -5868,7 +5868,7 @@ index 14ac7df..fe2c79d 100644
  		expired = icsk->icsk_retransmits >= retry_until;
  	} else {
  		if (retransmits_timed_out(sk, net->ipv4.sysctl_tcp_retries1, 0)) {
-@@ -302,18 +314,22 @@ void tcp_delack_timer_handler(struct sock *sk)
+@@ -287,18 +299,22 @@ void tcp_delack_timer_handler(struct sock *sk)
  static void tcp_delack_timer(unsigned long data)
  {
  	struct sock *sk = (struct sock *)data;
@@ -5895,7 +5895,7 @@ index 14ac7df..fe2c79d 100644
  	sock_put(sk);
  }
  
-@@ -574,7 +590,7 @@ void tcp_write_timer_handler(struct sock *sk)
+@@ -559,7 +575,7 @@ void tcp_write_timer_handler(struct sock *sk)
  		break;
  	case ICSK_TIME_RETRANS:
  		icsk->icsk_pending = 0;
@@ -5904,7 +5904,7 @@ index 14ac7df..fe2c79d 100644
  		break;
  	case ICSK_TIME_PROBE0:
  		icsk->icsk_pending = 0;
-@@ -589,16 +605,19 @@ void tcp_write_timer_handler(struct sock *sk)
+@@ -574,16 +590,19 @@ void tcp_write_timer_handler(struct sock *sk)
  static void tcp_write_timer(unsigned long data)
  {
  	struct sock *sk = (struct sock *)data;
@@ -5927,7 +5927,7 @@ index 14ac7df..fe2c79d 100644
  	sock_put(sk);
  }
  
-@@ -628,11 +647,12 @@ static void tcp_keepalive_timer (unsigned long data)
+@@ -613,11 +632,12 @@ static void tcp_keepalive_timer (unsigned long data)
  	struct sock *sk = (struct sock *) data;
  	struct inet_connection_sock *icsk = inet_csk(sk);
  	struct tcp_sock *tp = tcp_sk(sk);
@@ -5942,7 +5942,7 @@ index 14ac7df..fe2c79d 100644
  		/* Try again later. */
  		inet_csk_reset_keepalive_timer (sk, HZ/20);
  		goto out;
-@@ -644,16 +664,31 @@ static void tcp_keepalive_timer (unsigned long data)
+@@ -629,16 +649,31 @@ static void tcp_keepalive_timer (unsigned long data)
  	}
  
  	tcp_mstamp_refresh(tp);
@@ -5976,7 +5976,7 @@ index 14ac7df..fe2c79d 100644
  		goto death;
  	}
  
-@@ -678,11 +713,11 @@ static void tcp_keepalive_timer (unsigned long data)
+@@ -663,11 +698,11 @@ static void tcp_keepalive_timer (unsigned long data)
  		    icsk->icsk_probes_out > 0) ||
  		    (icsk->icsk_user_timeout == 0 &&
  		    icsk->icsk_probes_out >= keepalive_probes(tp))) {
@@ -5990,7 +5990,7 @@ index 14ac7df..fe2c79d 100644
  			icsk->icsk_probes_out++;
  			elapsed = keepalive_intvl_when(tp);
  		} else {
-@@ -706,7 +741,7 @@ static void tcp_keepalive_timer (unsigned long data)
+@@ -691,7 +726,7 @@ static void tcp_keepalive_timer (unsigned long data)
  	tcp_done(sk);
  
  out:
@@ -6000,10 +6000,10 @@ index 14ac7df..fe2c79d 100644
  }
  
 diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
-index 6a76e41..b9ad831 100644
+index c5318f5..d0bd0d7 100644
 --- a/net/ipv6/addrconf.c
 +++ b/net/ipv6/addrconf.c
-@@ -928,6 +928,7 @@ void inet6_ifa_finish_destroy(struct inet6_ifaddr *ifp)
+@@ -927,6 +927,7 @@ void inet6_ifa_finish_destroy(struct inet6_ifaddr *ifp)
  
  	kfree_rcu(ifp, rcu);
  }
@@ -6012,7 +6012,7 @@ index 6a76e41..b9ad831 100644
  static void
  ipv6_link_dev_addr(struct inet6_dev *idev, struct inet6_ifaddr *ifp)
 diff --git a/net/ipv6/af_inet6.c b/net/ipv6/af_inet6.c
-index 9ccbf74..f5d6839 100644
+index bcbd5f3..720c788 100644
 --- a/net/ipv6/af_inet6.c
 +++ b/net/ipv6/af_inet6.c
 @@ -107,8 +107,7 @@ static __inline__ struct ipv6_pinfo *inet6_sk_generic(struct sock *sk)
@@ -6026,7 +6026,7 @@ index 9ccbf74..f5d6839 100644
  	struct inet_sock *inet;
  	struct ipv6_pinfo *np;
 diff --git a/net/ipv6/ipv6_sockglue.c b/net/ipv6/ipv6_sockglue.c
-index 3b25176..92b2e9a 100644
+index 90dbfa7..22c027e 100644
 --- a/net/ipv6/ipv6_sockglue.c
 +++ b/net/ipv6/ipv6_sockglue.c
 @@ -48,6 +48,8 @@

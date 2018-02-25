@@ -14,7 +14,7 @@ MAINTAINER:=Ted Hess <thess@kitschensync.net>, \
 	    Imre Kaloz <kaloz@openwrt.org>
 SUBTARGETS:=generic harddisk
 
-KERNEL_PATCHVER:=4.9
+KERNEL_PATCHVER:=4.14
 
 include $(INCLUDE_DIR)/target.mk
 

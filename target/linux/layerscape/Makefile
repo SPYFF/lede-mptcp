@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 BOARD:=layerscape
 BOARDNAME:=NXP Layerscape
 DEVICE_TYPE:=developerboard
-KERNEL_PATCHVER:=4.9
+KERNEL_PATCHVER:=4.14
 FEATURES:=squashfs nand usb pcie gpio fpu
 SUBTARGETS:=armv8_64b armv8_32b
 MAINTAINER:=Yangbo Lu <yangbo.lu@nxp.com>
