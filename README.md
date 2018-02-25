@@ -4,8 +4,9 @@
 
 This is the master (unstable) branch. Supported MPTCP versions:
 
-![ver](https://img.shields.io/badge/kernel%20version-4.4.110-brightgreen.svg)
-![ver](https://img.shields.io/badge/kernel%20version-4.9.76-blue.svg)
+![ver](https://img.shields.io/badge/kernel%20version-4.4.116-brightgreen.svg)
+![ver](https://img.shields.io/badge/kernel%20version-4.9.82-blue.svg)
+![ver](https://img.shields.io/badge/kernel%20version-4.14.20-red.svg)
 
 
 ## About
